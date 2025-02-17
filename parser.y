@@ -434,7 +434,6 @@ ARRAY_DECL : ARRAY_DIM ARRAY_INIT
            ;
 
 ARRAY_DIM : '[' T_NUM ']' ARRAY_DIM
-	  | '[' T_ID ']'
           | '[' T_NUM ']' { 
               char str[32];
               sprintf(str, "%d", atoi($2));
