@@ -46,9 +46,13 @@ number          {digits}{opFraction}{opExponent}
 "break"		{ return T_BREAK; }
 "continue"	{ return T_CONTINUE; }
 "#include"      { return T_INCLUDE; }
+"<"[^>]+">"	{ return T_HEADER; }
 "main"          { return T_MAIN; }
 "return"	{ return T_RETURN; }
 \".*\"          { yylval=strdup(yytext); return T_STRLITERAL; }
+"bool"		{ return T_BOOLEAN; }
+"true"          { yylval = strdup("1"); return T_BOOLLITERAL; }
+"false"         { yylval = strdup("0"); return T_BOOLLITERAL; }
 "=="            { return T_EQCOMP; }
 "!="            { return T_NOTEQUAL; }
 ">="            { return T_GREATEREQ; }
@@ -59,8 +63,12 @@ number          {digits}{opFraction}{opExponent}
 ","             { return *yytext; }
 "{"             { return *yytext; }
 "}"             { return *yytext; }
+"["             { return *yytext; }
+"]"             { return *yytext; }
 "*"             { return *yytext; }
 "+"             { return *yytext; }
+"++"		{ return T_INC; }
+"--"		{ return T_DEC; }
 "%"		{ return *yytext; }
 ";"             { return *yytext; }
 "-"             { return *yytext; }
@@ -68,6 +76,10 @@ number          {digits}{opFraction}{opExponent}
 "="             { return *yytext; }
 ">"             { return *yytext; }
 "<"             { return *yytext; }
+"||"      	{ return T_OROR; }
+"&&"		{ return T_ANDAND; }
+"!"       	{ return T_NOT; }
+
 {number}        {
                     yylval=strdup(yytext);  // stores the value of the number to be
                                             // used later for symbol table insertion

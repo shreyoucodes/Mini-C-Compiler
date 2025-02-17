@@ -1,0 +1,2 @@
+Error :syntax error at 8 
+Name	Size	Type	LineNo	Scope	Value

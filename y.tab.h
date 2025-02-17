@@ -59,34 +59,35 @@ extern int yydebug;
     T_DOUBLE = 260,                /* T_DOUBLE  */
     T_INC = 261,                   /* T_INC  */
     T_DEC = 262,                   /* T_DEC  */
-    T_OROR = 263,                  /* T_OROR  */
-    T_ANDAND = 264,                /* T_ANDAND  */
-    T_EQCOMP = 265,                /* T_EQCOMP  */
-    T_NOTEQUAL = 266,              /* T_NOTEQUAL  */
-    T_GREATEREQ = 267,             /* T_GREATEREQ  */
-    T_LESSEREQ = 268,              /* T_LESSEREQ  */
-    T_LEFTSHIFT = 269,             /* T_LEFTSHIFT  */
-    T_RIGHTSHIFT = 270,            /* T_RIGHTSHIFT  */
-    T_PRINTLN = 271,               /* T_PRINTLN  */
-    T_STRING = 272,                /* T_STRING  */
-    T_FLOAT = 273,                 /* T_FLOAT  */
-    T_BOOLEAN = 274,               /* T_BOOLEAN  */
-    T_IF = 275,                    /* T_IF  */
-    T_ELSE = 276,                  /* T_ELSE  */
-    T_STRLITERAL = 277,            /* T_STRLITERAL  */
-    T_DO = 278,                    /* T_DO  */
-    T_INCLUDE = 279,               /* T_INCLUDE  */
-    T_HEADER = 280,                /* T_HEADER  */
-    T_MAIN = 281,                  /* T_MAIN  */
-    T_ID = 282,                    /* T_ID  */
-    T_NUM = 283,                   /* T_NUM  */
-    T_FOR = 284,                   /* T_FOR  */
-    T_WHILE = 285,                 /* T_WHILE  */
-    T_SWITCH = 286,                /* T_SWITCH  */
-    T_CASE = 287,                  /* T_CASE  */
-    T_BREAK = 288,                 /* T_BREAK  */
-    T_CONTINUE = 289,              /* T_CONTINUE  */
-    T_RETURN = 290                 /* T_RETURN  */
+    T_EQCOMP = 263,                /* T_EQCOMP  */
+    T_NOTEQUAL = 264,              /* T_NOTEQUAL  */
+    T_GREATEREQ = 265,             /* T_GREATEREQ  */
+    T_LESSEREQ = 266,              /* T_LESSEREQ  */
+    T_LEFTSHIFT = 267,             /* T_LEFTSHIFT  */
+    T_RIGHTSHIFT = 268,            /* T_RIGHTSHIFT  */
+    T_PRINTLN = 269,               /* T_PRINTLN  */
+    T_FLOAT = 270,                 /* T_FLOAT  */
+    T_IF = 271,                    /* T_IF  */
+    T_ELSE = 272,                  /* T_ELSE  */
+    T_DO = 273,                    /* T_DO  */
+    T_INCLUDE = 274,               /* T_INCLUDE  */
+    T_HEADER = 275,                /* T_HEADER  */
+    T_MAIN = 276,                  /* T_MAIN  */
+    T_ID = 277,                    /* T_ID  */
+    T_NUM = 278,                   /* T_NUM  */
+    T_FOR = 279,                   /* T_FOR  */
+    T_WHILE = 280,                 /* T_WHILE  */
+    T_SWITCH = 281,                /* T_SWITCH  */
+    T_CASE = 282,                  /* T_CASE  */
+    T_BREAK = 283,                 /* T_BREAK  */
+    T_CONTINUE = 284,              /* T_CONTINUE  */
+    T_OROR = 285,                  /* T_OROR  */
+    T_ANDAND = 286,                /* T_ANDAND  */
+    T_NOT = 287,                   /* T_NOT  */
+    T_BOOLEAN = 288,               /* T_BOOLEAN  */
+    T_BOOLLITERAL = 289,           /* T_BOOLLITERAL  */
+    T_STRLITERAL = 290,            /* T_STRLITERAL  */
+    T_RETURN = 291                 /* T_RETURN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -100,34 +101,35 @@ extern int yydebug;
 #define T_DOUBLE 260
 #define T_INC 261
 #define T_DEC 262
-#define T_OROR 263
-#define T_ANDAND 264
-#define T_EQCOMP 265
-#define T_NOTEQUAL 266
-#define T_GREATEREQ 267
-#define T_LESSEREQ 268
-#define T_LEFTSHIFT 269
-#define T_RIGHTSHIFT 270
-#define T_PRINTLN 271
-#define T_STRING 272
-#define T_FLOAT 273
-#define T_BOOLEAN 274
-#define T_IF 275
-#define T_ELSE 276
-#define T_STRLITERAL 277
-#define T_DO 278
-#define T_INCLUDE 279
-#define T_HEADER 280
-#define T_MAIN 281
-#define T_ID 282
-#define T_NUM 283
-#define T_FOR 284
-#define T_WHILE 285
-#define T_SWITCH 286
-#define T_CASE 287
-#define T_BREAK 288
-#define T_CONTINUE 289
-#define T_RETURN 290
+#define T_EQCOMP 263
+#define T_NOTEQUAL 264
+#define T_GREATEREQ 265
+#define T_LESSEREQ 266
+#define T_LEFTSHIFT 267
+#define T_RIGHTSHIFT 268
+#define T_PRINTLN 269
+#define T_FLOAT 270
+#define T_IF 271
+#define T_ELSE 272
+#define T_DO 273
+#define T_INCLUDE 274
+#define T_HEADER 275
+#define T_MAIN 276
+#define T_ID 277
+#define T_NUM 278
+#define T_FOR 279
+#define T_WHILE 280
+#define T_SWITCH 281
+#define T_CASE 282
+#define T_BREAK 283
+#define T_CONTINUE 284
+#define T_OROR 285
+#define T_ANDAND 286
+#define T_NOT 287
+#define T_BOOLEAN 288
+#define T_BOOLLITERAL 289
+#define T_STRLITERAL 290
+#define T_RETURN 291
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

@@ -1,0 +1,8 @@
+5 3
+Error :syntax error at 11 
+Name	Size	Type	LineNo	Scope	Value
+a	2	2	4	1	9
+b	2	2	4	1	9
+c	1	1	5	1	~
+i	2	2	8	1	0
+j	2	2	8	1	~

@@ -1,0 +1,9 @@
+5 3
+456 123
+123 56088
+5 6
+Valid syntax
+Name	Size	Type	LineNo	Scope	Value
+a	2	2	5	1	11
+b	2	2	5	1	6
+k	2	2	12	1	56211

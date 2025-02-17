@@ -19,10 +19,12 @@
 
 %}
 
-%token T_INT T_CHAR T_DOUBLE T_INC T_DEC T_OROR T_ANDAND T_EQCOMP T_NOTEQUAL
-%token T_GREATEREQ T_LESSEREQ T_LEFTSHIFT T_RIGHTSHIFT T_PRINTLN T_STRING  T_FLOAT
-%token T_BOOLEAN T_IF T_ELSE T_STRLITERAL T_DO T_INCLUDE T_HEADER T_MAIN T_ID T_NUM T_FOR 
+%token T_INT T_CHAR T_DOUBLE T_INC T_DEC T_EQCOMP T_NOTEQUAL
+%token T_GREATEREQ T_LESSEREQ T_LEFTSHIFT T_RIGHTSHIFT T_PRINTLN T_FLOAT
+%token T_IF T_ELSE T_DO T_INCLUDE T_HEADER T_MAIN T_ID T_NUM T_FOR 
 %token T_WHILE T_SWITCH T_CASE T_BREAK T_CONTINUE 
+%token T_OROR T_ANDAND T_NOT
+%token T_BOOLEAN T_BOOLLITERAL T_STRLITERAL
 %token T_RETURN
 
 %start START
@@ -32,16 +34,15 @@
 START   : PROG { printf("Valid syntax\n"); YYACCEPT; }	
         ;	
 	  
-PROG    : MAIN PROG				
-	    | DECLR ';' PROG 				
-	    | ASSGN ';' PROG 			
-	    | 					
-	    ;
+PROG    : T_INCLUDE T_HEADER PROG
+	| MAIN PROG				
+	| DECLR ';' PROG 				
+	| ASSGN ';' PROG 			
+	| 					
+	;
 	 
-
 DECLR   : TYPE LISTVAR 
 	    ;	
-
 
 LISTVAR : LISTVAR ',' VAR 
 	    | VAR
@@ -64,14 +65,41 @@ VAR     : T_ID '=' EXPR {
             type = -1;
 		}
         | T_ID {
-            /*
-                finished in lab 2
-            */
             if ( check_symbol_table( $1, scope ) != NULL ) {
                     yyerror( $1 );
                 }
                 insert_into_table( $1, type, yylineno, scope );
 		}
+	| T_ID '[' T_NUM ']' {
+        if ( check_symbol_table( $1, scope ) ) {
+            yyerror( $1 );
+        }
+        insert_into_table( $1, type, yylineno, scope );
+        }
+        | T_ID ARRAY_DECL {
+        if (check_symbol_table($1, scope))  
+        	yyerror($1);
+        else {
+        insert_into_table($1, type, yylineno, scope);
+        symbol *s = get_symbol($1, scope);
+        
+        // Store the whole array instead of just the last value
+        if (strcmp(vval, "~") != 0) {
+            char array_values[1024] = "";  // Buffer to hold all values
+            strcat(array_values, vval);   // Append first value
+            
+            // If multiple values exist, concatenate them
+            if ($2 != NULL) {  
+                strcat(array_values, ", ");
+                strcat(array_values, $2);
+            }
+	    insert_value_to_name($1, array_values, scope);
+        }
+        type = -1;
+        vval = "~";
+        }
+        }
+
         ;
 
 //assign type here to be returned to the declaration grammar
@@ -79,6 +107,7 @@ TYPE    : T_INT {type = INT;}
         | T_FLOAT {type = FLOAT;}
         | T_DOUBLE {type = DOUBLE;}
         | T_CHAR {type = CHAR;}
+        | T_BOOLEAN {type = BOOL;}
         ;
     
 /* Grammar for assignment */   
@@ -105,13 +134,45 @@ ASSGN   : T_ID {
             vval = "~";
             type = -1;
             global_p = NULL;
-		}
+	    }
+	    | T_ID '[' EXPR ']' '=' EXPR {
+            symbol *s = get_symbol($1, scope);
+                if(s == NULL) {
+                    fprintf(stderr, "%s is not declared\n", $1);
+                    yyerror($1);
+                }
+                else {
+                    // Handle array assignment
+                    char index_str[32];
+                    sprintf(index_str, "[%s]", $3);
+                    char *new_val = malloc(strlen(s->val) + strlen(index_str) + strlen($6) + 1);
+                    sprintf(new_val, "%s%s=%s", s->val, index_str, $6);
+                    insert_value_to_symbol(s, new_val);
+                    free(new_val);
+                }
+            }
 	    ;
 
+
+
 EXPR    : EXPR REL_OP E
+	| EXPR T_OROR EXPR {
+             $$ = (atoi($1) || atoi($3)) ? strdup("1") : strdup("0");
+        }
+        | EXPR T_ANDAND EXPR {
+             $$ = (atoi($1) && atoi($3)) ? strdup("1") : strdup("0");
+        }
+        | T_NOT EXPR {
+             $$ = (!atoi($2)) ? strdup("1") : strdup("0");
+        }
+        | T_BOOLLITERAL {
+            $$ = $1;
+        }
+        | T_STRLITERAL {
+            $$ = $1;
+        }
         | E {
-            // store value using value variable declared before
-            vval = $1;
+             vval = $1;
         }
         ;
 	   
@@ -265,10 +326,99 @@ F       : '(' EXPR ')'
                 fprintf( stderr, "Cannot assign char * to type %d\n", type );
                 yyerror( $1 );
             }
-		}   
+	} 
+	| UPDATE  
         ;
 
-
+UPDATE : T_INC T_ID {
+                symbol *s=get_symbol($2,scope);
+                if(s==NULL) {
+                    fprintf(stderr,"%s is not declared\n",$2);
+                    yyerror($2);
+                }
+                if(!strcmp(s->val,"~")) {
+                    fprintf(stderr,"%s is not initialized\n",$2);
+                    yyerror($2);
+                }
+                char new_value[32];
+                if(s->type==INT) {
+                    int val = atoi(s->val) + 1;
+                    sprintf(new_value,"%d",val);
+                } else if(s->type==FLOAT || s->type==DOUBLE) {
+                    double val = atof(s->val) + 1.0;
+                    sprintf(new_value,"%lf",val);
+                }
+                insert_value_to_symbol(s,new_value);
+                $$=strdup(new_value);
+                vtype=s->type;
+            }
+  | T_DEC T_ID {
+                symbol *s=get_symbol($2,scope);
+                if(s==NULL) {
+                    fprintf(stderr,"%s is not declared\n",$2);
+                    yyerror($2);
+                }
+                if(!strcmp(s->val,"~")) {
+                    fprintf(stderr,"%s is not initialized\n",$2);
+                    yyerror($2);
+                }
+                char new_value[32];
+                if(s->type==INT) {
+                    int val = atoi(s->val) - 1;
+                    sprintf(new_value,"%d",val);
+                } else if(s->type==FLOAT || s->type==DOUBLE) {
+                    double val = atof(s->val) - 1.0;
+                    sprintf(new_value,"%lf",val);
+                }
+                insert_value_to_symbol(s,new_value);
+                $$=strdup(new_value);
+                vtype=s->type;
+            }
+  | T_ID T_INC {
+                symbol *s=get_symbol($1,scope);
+                if(s==NULL) {
+                    fprintf(stderr,"%s is not declared\n",$1);
+                    yyerror($1);
+                }
+                if(!strcmp(s->val,"~")) {
+                    fprintf(stderr,"%s is not initialized\n",$1);
+                    yyerror($1);
+                }
+                $$=strdup(s->val);
+                char new_value[32];
+                if(s->type==INT) {
+                    int val = atoi(s->val) + 1;
+                    sprintf(new_value,"%d",val);
+                } else if(s->type==FLOAT || s->type==DOUBLE) {
+                    double val = atof(s->val) + 1.0;
+                    sprintf(new_value,"%lf",val);
+                }
+                insert_value_to_symbol(s,new_value);
+                vtype=s->type;
+            }
+  | T_ID T_DEC {
+                symbol *s=get_symbol($1,scope);
+                if(s==NULL) {
+                    fprintf(stderr,"%s is not declared\n",$1);
+                    yyerror($1);
+                }
+                if(!strcmp(s->val,"~")) {
+                    fprintf(stderr,"%s is not initialized\n",$1);
+                    yyerror($1);
+                }
+                $$=strdup(s->val);
+                char new_value[32];
+                if(s->type==INT) {
+                    int val = atoi(s->val) - 1;
+                    sprintf(new_value,"%d",val);
+                } else if(s->type==FLOAT || s->type==DOUBLE) {
+                    double val = atof(s->val) - 1.0;
+                    sprintf(new_value,"%lf",val);
+                }
+                insert_value_to_symbol(s,new_value);
+                vtype=s->type;
+            }
+  ;
 
 REL_OP  : T_LESSEREQ
 	    | T_GREATEREQ
@@ -278,6 +428,34 @@ REL_OP  : T_LESSEREQ
 	    | T_NOTEQUAL
 	    ;	
 
+ARRAY_DECL : ARRAY_DIM ARRAY_INIT
+           | ARRAY_DIM
+           | ARRAY_INIT
+           ;
+
+ARRAY_DIM : '[' T_NUM ']' ARRAY_DIM
+	  | '[' T_ID ']'
+          | '[' T_NUM ']' { 
+              char str[32];
+              sprintf(str, "%d", atoi($2));
+              $$ = strdup(str);
+            }
+          ;
+
+ARRAY_INIT : '=' '{' ARRAY_LIST '}' { 
+            $$ = strdup($3); // Store the entire array list as a single string 
+            }
+            ;
+
+ARRAY_LIST : ARRAY_LIST ',' EXPR {
+            char *temp = malloc(strlen($1) + strlen($3) + 3); // Allocate space
+            sprintf(temp, "%s, %s", $1, $3); // Concatenate values
+            $$ = temp;
+	   } 
+           | EXPR { 
+            $$ = strdup($1); // Store first value
+	   }
+	   ;
 
 /* Grammar for main function */
 //increment and decrement at particular points in the grammar to implement scope tracking
@@ -297,6 +475,7 @@ STMT    : STMT_NO_BLOCK STMT
         | FUNC_DECL STMT
         | FUNC_DEF STMT
         | RET_STMT STMT
+        | DO_WHILE_LOOP STMT
         |
         ;
         
@@ -306,11 +485,24 @@ IF_ELSE : T_IF '(' COND ')' '{' STMT '}' T_ELSE  '{' STMT '}' STMT
 	| T_IF '(' COND ')' STMT_NO_BLOCK T_ELSE STMT_NO_BLOCK STMT 
 	;
 
-FOR_LOOP : T_FOR '(' ASSGN ';' COND ';' ASSGN ')' BLOCK 
+FOR_LOOP : T_FOR '(' FOR_INIT ';' COND ';' FOR_UP ')' '{' STMT '}' 
          ;
+
+FOR_INIT : DECLR
+	 | ASSGN
+	 |
+	 ;
+
+FOR_UP : UPDATE
+       | ASSGN
+       | 
+       ;
 
 WHILE_LOOP : T_WHILE '(' COND ')' BLOCK 
            ;
+
+DO_WHILE_LOOP : T_DO '{' STMT '}'  T_WHILE '(' COND ')' ';'
+	      ;
 
 SWITCH_STMT : T_SWITCH '(' T_ID ')' '{' CASES '}' 
 	    ;

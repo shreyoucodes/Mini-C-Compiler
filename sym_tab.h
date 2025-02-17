@@ -2,6 +2,7 @@
 #define INT 2
 #define FLOAT 3
 #define DOUBLE 4
+#define BOOL 5
 
 typedef struct symbol   //data structure of items in the list
 {
